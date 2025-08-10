@@ -1,0 +1,14 @@
+CREATE TABLE chat_messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(50) NOT NULL,
+  username VARCHAR(255) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE chat_message_entries (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  chat_message_id INT NOT NULL,
+  message TEXT NOT NULL,
+  time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (chat_message_id) REFERENCES chat_messages(id) ON DELETE CASCADE
+);
