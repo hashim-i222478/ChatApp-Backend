@@ -5,12 +5,12 @@ const fs = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
 
-// Import WebSocket server if available
+// WebSocket server will be passed by the main server
 let wss = null;
-try {
-  wss = require('../wsServer');
-} catch (err) {
-  console.log('WebSocket server not available for broadcasting');
+
+// Function to set the WebSocket server instance
+function setWebSocketServer(websocketServer) {
+  wss = websocketServer;
 }
 
 // Helper to generate a random 9-digit userId
@@ -343,3 +343,6 @@ exports.getAllUsers = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
+// Export the function to set WebSocket server
+exports.setWebSocketServer = setWebSocketServer;

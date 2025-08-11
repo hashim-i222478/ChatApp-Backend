@@ -2,11 +2,12 @@ const WebSocket = require('ws');
 const dotenv = require('dotenv');
 const express = require('express');
 const cors = require('cors');
+const http = require('http');
 const userRoutes = require('./Routes/userRoutes');
 const chatRoutes = require('./Routes/chatRoutes');
 const friendsRoutes = require('./Routes/friendsRoutes');
+const { setWebSocketServer } = require('./Controllers/ManageUsers');
 
-const wss = require('./wsServer');
 const path = require('path');
 // MySQL connection
 const pool = require('./db');
@@ -27,6 +28,17 @@ async function testDatabaseConnection() {
 
 // Test connection on startup
 testDatabaseConnection();
+
+const app = express();
+const server = http.createServer(app);
+
+// Create WebSocket server using the same HTTP server
+const wss = new WebSocket.Server({ server });
+
+console.log('WebSocket server will run on the same port as HTTP server');
+
+// Pass WebSocket server to ManageUsers controller
+setWebSocketServer(wss);
 
 const clients = new Map(); // Map ws -> { userId, username }
 const onlineUsers = new Map(); // userId -> { username, ws }
@@ -498,8 +510,6 @@ function broadcastMessage(message, excludeWs = null) {
   });
 }
 
-const app = express();
-
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -536,7 +546,8 @@ app.post('/api/internal/broadcastProfileUpdate', (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`WebSocket server is also running on port ${PORT}`);
 });
 
