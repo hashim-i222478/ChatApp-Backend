@@ -288,12 +288,6 @@ exports.deleteUser = async (req, res) => {
       [user.user_id, user.user_id]
     );
 
-    // Delete from pending deletes (correct table name)
-    await pool.execute(
-      `DELETE FROM pending_deletes WHERE user_id = ?`,
-      [user.user_id]
-    );
-
     // Finally delete the user
     await pool.execute(
       `DELETE FROM users WHERE id = ?`,
