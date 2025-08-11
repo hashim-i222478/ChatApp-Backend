@@ -189,7 +189,8 @@ wss.on('connection', (ws) => {
           );
 
           for (const msg of deliverable) {
-            // Format time for Pakistan timezone display
+            // The stored time is in Pakistan timezone format (YYYY-MM-DD HH:mm:ss)
+            // We need to parse it correctly as Pakistan time and display it properly
             let displayTime;
             if (msg.time instanceof Date) {
               displayTime = msg.time.toLocaleTimeString('en-US', { 
@@ -197,12 +198,19 @@ wss.on('connection', (ws) => {
                 hour12: true 
               });
             } else if (typeof msg.time === 'string') {
-              // Parse the stored time and format for Pakistan timezone display
-              const timeDate = new Date(msg.time);
-              displayTime = timeDate.toLocaleTimeString('en-US', { 
-                timeZone: 'Asia/Karachi',
-                hour12: true 
-              });
+              // The stored time is already in Pakistan timezone (YYYY-MM-DD HH:mm:ss)
+              // Parse it as Pakistan time and format for display
+              const [datePart, timePart] = msg.time.split(' ');
+              const [year, month, day] = datePart.split('-');
+              const [hours, minutes, seconds] = timePart.split(':');
+              
+              // Create a date object representing Pakistan time
+              const pakistanTime = new Date();
+              pakistanTime.setFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
+              pakistanTime.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds || 0), 0);
+              
+              // Format as Pakistan time for display
+              displayTime = pakistanTime.toLocaleTimeString('en-US', { hour12: true });
             } else {
               displayTime = new Date().toLocaleTimeString('en-US', { 
                 timeZone: 'Asia/Karachi',
@@ -257,11 +265,19 @@ wss.on('connection', (ws) => {
                 hour12: true 
               });
             } else if (typeof deleteMsg.time === 'string') {
-              const timeDate = new Date(deleteMsg.time);
-              displayTime = timeDate.toLocaleTimeString('en-US', { 
-                timeZone: 'Asia/Karachi',
-                hour12: true 
-              });
+              // The stored time is already in Pakistan timezone (YYYY-MM-DD HH:mm:ss)
+              // Parse it correctly as Pakistan time
+              const [datePart, timePart] = deleteMsg.time.split(' ');
+              const [year, month, day] = datePart.split('-');
+              const [hours, minutes, seconds] = timePart.split(':');
+              
+              // Create a date object representing Pakistan time
+              const pakistanTime = new Date();
+              pakistanTime.setFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
+              pakistanTime.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds || 0), 0);
+              
+              // Format as Pakistan time for display
+              displayTime = pakistanTime.toLocaleTimeString('en-US', { hour12: true });
             } else {
               displayTime = new Date().toLocaleTimeString('en-US', { 
                 timeZone: 'Asia/Karachi',
