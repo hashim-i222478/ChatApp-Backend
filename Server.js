@@ -71,14 +71,17 @@ function getCurrentTime() {
 
 function getMySQLDateTime() {
   const now = new Date();
-  // Store local time in database for consistency with display format
-  return now.toLocaleString('sv-SE').replace(' ', ' '); // Returns YYYY-MM-DD HH:mm:ss in local time
+  // Store Pakistan time in database for consistency with display format
+  return now.toLocaleString('sv-SE', { timeZone: 'Asia/Karachi' }).replace(' ', ' '); // Returns YYYY-MM-DD HH:mm:ss in Pakistan time
 }
 
 function getLocalTimeString() {
   const now = new Date();
-  // Return consistent local time format for display
-  return now.toLocaleTimeString();
+  // Return Pakistan Standard Time for display
+  return now.toLocaleTimeString('en-US', { 
+    timeZone: 'Asia/Karachi',
+    hour12: true 
+  });
 }
 
 function broadcastOnlineUsers() {
@@ -186,16 +189,25 @@ wss.on('connection', (ws) => {
           );
 
           for (const msg of deliverable) {
-            // Since we store time in local format, use it directly for display
+            // Format time for Pakistan timezone display
             let displayTime;
             if (msg.time instanceof Date) {
-              displayTime = msg.time.toLocaleTimeString();
+              displayTime = msg.time.toLocaleTimeString('en-US', { 
+                timeZone: 'Asia/Karachi',
+                hour12: true 
+              });
             } else if (typeof msg.time === 'string') {
-              // Parse the stored time and format for display
+              // Parse the stored time and format for Pakistan timezone display
               const timeDate = new Date(msg.time);
-              displayTime = timeDate.toLocaleTimeString();
+              displayTime = timeDate.toLocaleTimeString('en-US', { 
+                timeZone: 'Asia/Karachi',
+                hour12: true 
+              });
             } else {
-              displayTime = new Date().toLocaleTimeString(); // fallback
+              displayTime = new Date().toLocaleTimeString('en-US', { 
+                timeZone: 'Asia/Karachi',
+                hour12: true 
+              }); // fallback
             }
             
             ws.send(JSON.stringify({
@@ -203,7 +215,7 @@ wss.on('connection', (ws) => {
               fromUserId: msg.sender_id,
               toUserId: msg.receiver_id,
               message: msg.message,
-              time: displayTime, // Send properly formatted local time
+              time: displayTime, // Send Pakistan time formatted display time
               fileUrl: msg.file_url || null,
               fileType: msg.file_type || null,
               filename: msg.filename || null
@@ -237,15 +249,24 @@ wss.on('connection', (ws) => {
             if (!deleteGroups[chatKey]) {
               deleteGroups[chatKey] = [];
             }
-            // Format time for display consistently
+            // Format time for Pakistan timezone display consistently
             let displayTime;
             if (deleteMsg.time instanceof Date) {
-              displayTime = deleteMsg.time.toLocaleTimeString();
+              displayTime = deleteMsg.time.toLocaleTimeString('en-US', { 
+                timeZone: 'Asia/Karachi',
+                hour12: true 
+              });
             } else if (typeof deleteMsg.time === 'string') {
               const timeDate = new Date(deleteMsg.time);
-              displayTime = timeDate.toLocaleTimeString();
+              displayTime = timeDate.toLocaleTimeString('en-US', { 
+                timeZone: 'Asia/Karachi',
+                hour12: true 
+              });
             } else {
-              displayTime = new Date().toLocaleTimeString();
+              displayTime = new Date().toLocaleTimeString('en-US', { 
+                timeZone: 'Asia/Karachi',
+                hour12: true 
+              });
             }
             deleteGroups[chatKey].push(displayTime);
           }
@@ -324,8 +345,8 @@ wss.on('connection', (ws) => {
 
           const currentTime = new Date();
           const timeISO = currentTime.toISOString();
-          // Store local time in database for consistency with display format
-          const time = currentTime.toLocaleString('sv-SE').replace(' ', ' '); // YYYY-MM-DD HH:mm:ss in local time
+          // Store Pakistan time in database for consistency with display format
+          const time = currentTime.toLocaleString('sv-SE', { timeZone: 'Asia/Karachi' }).replace(' ', ' '); // YYYY-MM-DD HH:mm:ss in Pakistan time
           const recipient = onlineUsers.get(toUserId);
           
           // Prepare payload for both sender and recipient
