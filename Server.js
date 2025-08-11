@@ -7,6 +7,11 @@ const userRoutes = require('./Routes/userRoutes');
 const chatRoutes = require('./Routes/chatRoutes');
 const friendsRoutes = require('./Routes/friendsRoutes');
 const { setWebSocketServer } = require('./Controllers/ManageUsers');
+// Minimal imports to merge ProfileServer into this server
+const multer = require('multer');
+const fs = require('fs');
+const { UpdateUserProfile, getProfilePic } = require('./Controllers/profile');
+const verifyToken = require('./Middlewares/authMiddleware');
 
 const path = require('path');
 // MySQL connection
@@ -28,6 +33,22 @@ async function testDatabaseConnection() {
 
 // Test connection on startup
 testDatabaseConnection();
+
+// Minimal multer setup for profile picture uploads (from ProfileServer)
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    cb(null, `${Date.now()}-${Math.round(Math.random() * 1E9)}${ext}`);
+  }
+});
+const upload = multer({ storage: storage });
 
 const app = express();
 const server = http.createServer(app);
@@ -517,6 +538,9 @@ app.use('/uploads/private-media', express.static(path.join(__dirname, 'uploads/p
 app.use('/api/users', userRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/friends', friendsRoutes);
+// Profile routes moved from ProfileServer.js
+app.put('/api/users/update', verifyToken, upload.single('profilePic'), UpdateUserProfile);
+app.get('/api/users/profile-pic/:userId', verifyToken, getProfilePic);
 app.get('/', (req, res) => {
   res.send('Welcome to the Chat Server');
 });
