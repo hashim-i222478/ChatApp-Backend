@@ -356,7 +356,7 @@ wss.on('connection', (ws) => {
             toUserId,
             fromUsername: sender.username,
             message: privateMsg,
-            time: getLocalTimeString(), // Send consistent local time format
+            time: getLocalTimeString(), // Send Pakistan time format
             chatKey: `chat_${[sender.userId, toUserId].sort().join('_')}`,
             file: file || null,
             fileUrl: fileUrl || null,
@@ -434,10 +434,10 @@ wss.on('connection', (ws) => {
 
                 // Store one delete request record for each timestamp
                 for (const timestamp of timestamps) {
-                  // Convert timestamp back to MySQL datetime format
-                  // timestamps come as local time strings like "10:30:15 AM"
-                  // We need to store them as they are for later matching
-                  const today = new Date().toISOString().split('T')[0]; // Get today's date
+                  // Convert Pakistan time timestamp back to MySQL datetime format
+                  // timestamps come as Pakistan time strings like "6:30:15 PM"
+                  // We need to convert them to database format for later matching
+                  const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Karachi' }); // Get today's date in Pakistan timezone
                   const [time, period] = timestamp.split(' ');
                   let [hours, minutes, seconds] = time.split(':');
                   
