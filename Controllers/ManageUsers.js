@@ -31,9 +31,9 @@ exports.signup = async (req, res) => {
       `SELECT * FROM users WHERE username = ?`,
       [username]
     );
-    if (existingUser.length > 0) {
-      return res.status(400).json({ message: 'Username already exists' });
-    }
+   // if (existingUser.length > 0) {
+    //   return res.status(400).json({ message: 'Username already exists' });
+    // }
     
     // Generate unique userId
     let userId;
